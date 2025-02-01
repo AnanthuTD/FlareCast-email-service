@@ -29,6 +29,24 @@ class EmailService implements IEmailService {
 
     await this.transporter.sendMail(mailOptions);
   }
+
+  async sendEmail({
+    to,
+    subject,
+    html,
+  }: {
+    to: string;
+    subject: string;
+    html: string;
+  }): Promise<void> {
+    const mailOptions: MailOptions = {
+      to,
+      subject,
+      html,
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
 }
 
 export default EmailService;

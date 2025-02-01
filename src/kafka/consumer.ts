@@ -1,22 +1,21 @@
-import z from "zod";
 import { logger } from "../logger/logger";
-import VerificationTokenRepository from "../repository/VerificationTokenRepository";
-import EmailService from "../service/EmailService";
-import SendVerificationEmailUseCase from "../usecase/SendVerificationEmailUseCase";
 import kafka from "./kafka";
 import { TOPICS } from "../config/topics";
+import { KafkaMessage } from "kafkajs";
 
 const consumer = kafka.consumer({
 	groupId: "email-service",
 });
 
-interface UserCreateMessage {
-	userId: string;
-	email: string;
-}
-
-export async function consumeMessages() {
-	const topics = [TOPICS.USER_CREATED_EVENT];
+export async function consumeMessages(
+	topics: TOPICS[],
+	cb: (
+		value: any,
+		topic: string,
+		partition: number,
+		message: KafkaMessage
+	) => void
+) {
 	logger.info("⌛ Consuming messages from topic(s):", topics);
 
 	try {
@@ -31,15 +30,11 @@ export async function consumeMessages() {
 					message: message.value?.toString(),
 				});
 
-				logger.debug(JSON.stringify(message, null, 2));
-
 				const { value } = message;
 
 				// send verification email
 				if (value)
-					sendVerificationEmail(
-						JSON.parse(value.toString()) as unknown as UserCreateMessage
-					);
+					cb(JSON.parse(value.toString()) as any, topic, partition, message);
 			},
 		});
 	} catch (error) {
@@ -52,25 +47,3 @@ export async function consumeMessages() {
 	}
 }
 
-export const emailVerificationSchema = z.object({
-	email: z.string().email({ message: "Invalid email address" }),
-});
-
-async function sendVerificationEmail({ userId, email }: UserCreateMessage) {
-	try {
-		console.log(email, userId);
-		emailVerificationSchema.parse({ email });
-
-		const tokenRepository = new VerificationTokenRepository();
-		const emailService = new EmailService();
-
-		const sendVerificationEmailUsecase = new SendVerificationEmailUseCase(
-			tokenRepository,
-			emailService
-		);
-
-		await sendVerificationEmailUsecase.execute({ email, userId });
-	} catch (error) {
-		logger.error("Failed to send verification email!", error);
-	}
-}
