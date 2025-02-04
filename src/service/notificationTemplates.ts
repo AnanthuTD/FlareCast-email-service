@@ -1,23 +1,25 @@
-import { NotificationEvent } from "../kafka";
+import {
+	EMAIL_NOTIFICATION_TYPE,
+	EmailNotificationEvent,
+} from "../types/types";
 
 interface EmailTemplate {
 	subject: string;
 	html: string;
 }
 
-export function getEmailTemplate(event: NotificationEvent): EmailTemplate {
+export function getEmailTemplate(event: EmailNotificationEvent): EmailTemplate {
 	switch (event.template) {
-		case "FIRST_VIEW":
+		case EMAIL_NOTIFICATION_TYPE.FIRST_VIEW:
 			return {
-				subject: `🚀 ${event.viewerName} Viewed Your Video: ${event.videoName}`,
+				subject: `🚀 ${event.viewerName} viewed your video: ${event.videoName}`,
 				html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #2563eb;">New Video View!</h2>
-            <p>Hello there,</p>
-            <p>
-              ${event.viewerName} has viewed your video 
-              <strong>"${event.videoName}"</strong> for the first time.
-            </p>
+            <h2 style="color: #2563eb;">Your First Viewer Has Arrived!</h2>
+            <p>Hello,</p>
+            <p>${event.viewerName} has just watched your video <strong>"${
+					event.videoName
+				}"</strong>.</p>
             <a href="${getVideoUrl(event.videoId)}" 
                style="background-color: #2563eb; color: white; padding: 12px 24px; 
                       text-decoration: none; border-radius: 4px; display: inline-block;">
@@ -27,17 +29,18 @@ export function getEmailTemplate(event: NotificationEvent): EmailTemplate {
         `,
 			};
 
-		case "commentNotifications":
+		case EMAIL_NOTIFICATION_TYPE.COMMENT:
 			return {
-				subject: `💬 New Comment on Your Video: ${event.videoName}`,
+				subject: `💬 New comment on your video: ${event.videoName}`,
 				html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #059669;">New Comment Received</h2>
-            <p>Hi there,</p>
-            <p>
-              You've received a new comment on your video 
-              <strong>"${event.videoName}"</strong> from ${event.viewerName}.
-            </p>
+            <p>Hey there,</p>
+            <p><strong>${
+							event.commenterName
+						}</strong> commented on your video: <strong>"${
+					event.videoName
+				}"</strong>.</p>
             <a href="${getCommentUrl(event.videoId)}" 
                style="background-color: #059669; color: white; padding: 12px 24px; 
                       text-decoration: none; border-radius: 4px; display: inline-block;">
@@ -47,18 +50,15 @@ export function getEmailTemplate(event: NotificationEvent): EmailTemplate {
         `,
 			};
 
-		case "transcriptSuccessNotifications":
+		case EMAIL_NOTIFICATION_TYPE.TRANSCRIPT_SUCCESS:
 			return {
-				subject: `✅ Transcript Ready for ${event.videoName}`,
+				subject: `✅ Transcript is ready for ${event.videoName}`,
 				html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #10b981;">Transcript Generation Complete</h2>
-            <p>Great news!</p>
-            <p>
-              Your transcript for <strong>"${
-								event.videoName
-							}"</strong> is now ready.
-            </p>
+            <h2 style="color: #10b981;">Your Transcript is Ready</h2>
+            <p>Good news! The transcript for <strong>"${
+							event.videoName
+						}"</strong> is now available.</p>
             <a href="${getTranscriptUrl(event.videoId)}" 
                style="background-color: #10b981; color: white; padding: 12px 24px; 
                       text-decoration: none; border-radius: 4px; display: inline-block;">
@@ -68,83 +68,69 @@ export function getEmailTemplate(event: NotificationEvent): EmailTemplate {
         `,
 			};
 
-		case "transcriptFailureNotifications":
+		case EMAIL_NOTIFICATION_TYPE.TRANSCRIPT_FAILURE:
 			return {
-				subject: `⚠️ Transcript Failed for ${event.videoName}`,
+				subject: `⚠️ Transcript failed for ${event.videoId}`,
 				html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #dc2626;">Transcript Generation Issue</h2>
-            <p>We encountered an issue processing your video:</p>
-            <p><strong>"${event.videoName}"</strong></p>
-            <p>Our team has been notified and we're working on a fix.</p>
-            <a href="${getRetryUrl(event.videoId)}" 
-               style="background-color: #dc2626; color: white; padding: 12px 24px; 
-                      text-decoration: none; border-radius: 4px; display: inline-block;">
-              Try Again
-            </a>
+            <h2 style="color: #dc2626;">Transcript Generation Failed</h2>
+            <p>We encountered an issue processing your video: "</strong>.</p>
+            <p>Try again later or contact support if the issue persists.</p>
           </div>
         `,
 			};
 
-		case "shareNotifications":
+		case EMAIL_NOTIFICATION_TYPE.WORKSPACE_REMOVE:
 			return {
-				subject: `📤 Your Video Was Shared: ${event.videoName}`,
+				subject: `🗑️ Removed from workspace: ${event.workspaceName}`,
 				html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #7c3aed;">Video Shared!</h2>
-            <p>Exciting news!</p>
-            <p>
-              Your video <strong>"${event.videoName}"</strong> was shared by 
-              ${event.viewerName}.
-            </p>
-            <a href="${getShareAnalyticsUrl(event.videoId)}" 
-               style="background-color: #7c3aed; color: white; padding: 12px 24px; 
-                      text-decoration: none; border-radius: 4px; display: inline-block;">
-              View Shares
-            </a>
+            <h2 style="color: #6b7280;">You were removed from a workspace</h2>
+            <p>Your access to the workspace <strong>"${event.workspaceName}"</strong> has been removed.</p>
+            <p>If you believe this was a mistake, please contact the workspace admin.</p>
           </div>
         `,
 			};
 
-		case "removeFromWorkspaceNotifications":
+		case EMAIL_NOTIFICATION_TYPE.WORKSPACE_DELETE:
 			return {
-				subject: `🗑️ Video Removed from Workspace: ${event.videoName}`,
+				subject: `❌ Workspace deleted: ${event.workspaceName}`,
 				html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #6b7280;">Video Removed</h2>
-            <p>This is to confirm that:</p>
-            <p>
-              <strong>"${event.videoName}"</strong> was removed from the workspace by 
-              ${event.viewerName}.
-            </p>
-            <p style="color: #6b7280; font-size: 0.9em;">
-              Note: This action can be reversed within 30 days from your trash folder.
-            </p>
+            <h2 style="color: #ef4444;">Workspace Deleted</h2>
+            <p>The workspace <strong>"${event.workspaceName}"</strong> has been permanently deleted.</p>
+            <p>This action cannot be undone.</p>
+          </div>
+        `,
+			};
+
+		case EMAIL_NOTIFICATION_TYPE.VIDEO_SHARE:
+			return {
+				subject: `📤 Your video was shared: ${event.videoName}`,
+				html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #7c3aed;">Your Video Was Shared</h2>
+            <p>Your video <strong>"${
+							event.videoName
+						}"</strong> was shared by <strong>${event.sharerName}</strong>.</p>
           </div>
         `,
 			};
 
 		default:
-			throw new Error(`Unknown email template: ${event.template}`);
+			throw new Error(`Unknown email template: ${(event as any).template}`);
 	}
 }
 
+// 🔹 Helper functions to generate URLs
 function getVideoUrl(videoId: string): string {
-  return `https://yourapp.com/videos/${videoId}`;
+	return `https://yourapp.com/videos/${videoId}`;
 }
 
 function getCommentUrl(videoId: string): string {
-  return `https://yourapp.com/videos/${videoId}/comments`;
+	return `https://yourapp.com/videos/${videoId}/comments`;
 }
 
 function getTranscriptUrl(videoId: string): string {
-  return `https://yourapp.com/transcripts/${videoId}`;
-}
-
-function getRetryUrl(videoId: string): string {
-  return `https://yourapp.com/retry/${videoId}`;
-}
-
-function getShareAnalyticsUrl(videoId: string): string {
-  return `https://yourapp.com/analytics/shares/${videoId}`;
+	return `https://yourapp.com/transcripts/${videoId}`;
 }
