@@ -5,6 +5,7 @@ import { KafkaMessage } from "kafkajs";
 
 const consumer = kafka.consumer({
 	groupId: "email-service",
+  allowAutoTopicCreation: true,
 });
 
 type TopicHandler = (
@@ -34,7 +35,8 @@ export async function consumeMessages(topicHandlers: TopicHandlers) {
     // Start consuming messages
     await consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
-        logger.info({
+        logger.debug(`✔️ Received message from topic ${topic}`)
+        logger.debug({
           topic,
           partition,
           message: message.value?.toString(),

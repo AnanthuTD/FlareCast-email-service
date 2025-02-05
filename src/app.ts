@@ -53,7 +53,6 @@ app.use('/metrics', async (req, res)=>{
   res.setHeader('Content-Type', promClient.register.contentType);
   const metrics = await promClient.register.metrics()
   res.send(metrics);
-  console.log(metrics);
 })
 
 // Catch-all route for handling unknown endpoints
