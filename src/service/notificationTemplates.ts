@@ -110,11 +110,30 @@ export function getEmailTemplate(event: EmailNotificationEvent): EmailTemplate {
 				html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #7c3aed;">Your Video Was Shared</h2>
-            <p>Your video <strong>"${
-							event.videoName
-						}"</strong> was shared by <strong>${event.sharerName}</strong>.</p>
+            <p>Your video <strong>"${event.videoName}"</strong> was shared by <strong>${event.sharerName}</strong>.</p>
           </div>
         `,
+			};
+
+		case EMAIL_NOTIFICATION_TYPE.WORKSPACE_INVITATION:
+			return {
+				subject: `📩 You're Invited to Join ${event.workspaceName}!`,
+				html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #7c3aed; text-align: center;">🚀 Join ${event.workspaceName}!</h2>
+        <p style="font-size: 16px; color: #333;">
+          You've been invited to collaborate on the workspace <strong>"${event.workspaceName}"</strong>.
+        </p>
+        <p style="font-size: 16px; color: #333;">
+          Click the button below to accept the invitation and start working with your team!
+        </p>
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="${(event as any).url}" style="background-color: #7c3aed; color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 5px; display: inline-block; font-weight: bold;">
+            ✅ Join Workspace
+          </a>
+        </div>
+      </div>
+    `,
 			};
 
 		default:

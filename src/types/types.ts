@@ -6,6 +6,7 @@ export enum EMAIL_NOTIFICATION_TYPE {
 	WORKSPACE_REMOVE = "workspace_remove",
 	WORKSPACE_DELETE = "workspace_delete",
 	VIDEO_SHARE = "video_share",
+	WORKSPACE_INVITATION = "workspace_invitation",
 }
 
 // Base notification event structure
@@ -34,27 +35,31 @@ export interface CommentNotificationEvent extends BaseNotificationEvent {
 	commenterName: string;
 }
 
-export interface TranscriptSuccessNotificationEvent extends BaseNotificationEvent {
+export interface TranscriptSuccessNotificationEvent
+	extends BaseNotificationEvent {
 	eventType: EMAIL_NOTIFICATION_TYPE.TRANSCRIPT_SUCCESS;
 	template: EMAIL_NOTIFICATION_TYPE.TRANSCRIPT_SUCCESS;
 	videoId: string;
 	videoName: string;
 }
 
-export interface TranscriptFailureNotificationEvent extends BaseNotificationEvent {
+export interface TranscriptFailureNotificationEvent
+	extends BaseNotificationEvent {
 	eventType: EMAIL_NOTIFICATION_TYPE.TRANSCRIPT_FAILURE;
 	template: EMAIL_NOTIFICATION_TYPE.TRANSCRIPT_FAILURE;
 	videoId: string;
 }
 
-export interface WorkspaceRemoveNotificationEvent extends BaseNotificationEvent {
+export interface WorkspaceRemoveNotificationEvent
+	extends BaseNotificationEvent {
 	eventType: EMAIL_NOTIFICATION_TYPE.WORKSPACE_REMOVE;
 	template: EMAIL_NOTIFICATION_TYPE.WORKSPACE_REMOVE;
 	workspaceId: string;
 	workspaceName: string;
 }
 
-export interface WorkspaceDeleteNotificationEvent extends BaseNotificationEvent {
+export interface WorkspaceDeleteNotificationEvent
+	extends BaseNotificationEvent {
 	eventType: EMAIL_NOTIFICATION_TYPE.WORKSPACE_DELETE;
 	template: EMAIL_NOTIFICATION_TYPE.WORKSPACE_DELETE;
 	workspaceId: string;
@@ -70,6 +75,21 @@ export interface VideoShareNotificationEvent extends BaseNotificationEvent {
 	videoName: string;
 }
 
+export interface WorkspaceInvitationNotificationEvent {
+	eventType: EMAIL_NOTIFICATION_TYPE.WORKSPACE_INVITATION;
+	template: EMAIL_NOTIFICATION_TYPE.WORKSPACE_INVITATION;
+	senderId: string;
+	invites: {
+		receiverEmail: string;
+		url: string;
+		receiverId?: string;
+	}[];
+	workspaceId: string;
+	workspaceName: string;
+	timestamp: number;
+	userId: null;
+}
+
 // Union type for all possible email notification events
 export type EmailNotificationEvent =
 	| FirstViewNotificationEvent
@@ -78,4 +98,5 @@ export type EmailNotificationEvent =
 	| TranscriptFailureNotificationEvent
 	| WorkspaceRemoveNotificationEvent
 	| WorkspaceDeleteNotificationEvent
-	| VideoShareNotificationEvent;
+	| VideoShareNotificationEvent
+	| WorkspaceInvitationNotificationEvent;
