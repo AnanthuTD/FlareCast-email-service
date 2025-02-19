@@ -21,20 +21,19 @@ const sendNotificationEmail = async (event: EmailNotificationEvent) => {
 const sendWorkspaceInvitations = async (
 	event: WorkspaceInvitationNotificationEvent
 ) => {
-	for (const { receiverEmail, url } of event.invites) {
 		try {
 			const { subject, html } = getEmailTemplate({
 				eventType: EMAIL_NOTIFICATION_TYPE.WORKSPACE_INVITATION,
-				email: receiverEmail,
+				template: EMAIL_NOTIFICATION_TYPE.WORKSPACE_INVITATION,
+				email: event.email,
 				workspaceName: event.workspaceName,
-				url,
+				url: event.url,
 			});
-			await new EmailService().sendEmail({ to: receiverEmail, subject, html });
-			logger.info(`Email sent for ${event.eventType} to ${receiverEmail}`);
+			await new EmailService().sendEmail({ to: event.email, subject, html });
+			logger.info(`Email sent for ${event.eventType} to ${event.email}`);
 		} catch (error) {
 			logger.error(`Failed to send email for ${event.eventType}:`, error);
 		}
-	}
 };
 
 // Notification event handlers mapped dynamically
