@@ -48,6 +48,10 @@ app.use(morgan('dev'));
 app.use(passport.initialize());
 
 app.use('/api', router);
+app.use("/", (req, res) => {
+	res.send("pong");
+});
+
 // scrap endpoint for prometheus
 app.use('/metrics', async (req, res)=>{
   res.setHeader('Content-Type', promClient.register.contentType);
