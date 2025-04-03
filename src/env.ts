@@ -18,6 +18,7 @@ const env = cleanEnv(process.env, {
   FRONTEND_VERIFICATION_SUCCESS_ROUTE: url(),
   EMAIL_VERIFICATION_TOKEN_SECRET: str(),
   HOST_URL: url(),
+  EMAIL_SERVICE_PUBLIC_API: url(),
 });
 
 export default env;

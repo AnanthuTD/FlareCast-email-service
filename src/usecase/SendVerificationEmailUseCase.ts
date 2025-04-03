@@ -35,7 +35,7 @@ class SendVerificationEmailUseCase {
 		});
 
 		// Construct the verification link with the token as a query parameter
-		const verificationLink = `${env.HOST_URL}/api/verify/email?token=${token}&email=${email}`;
+		const verificationLink = `${env.EMAIL_SERVICE_PUBLIC_API}/api/verify/email?token=${token}&email=${email}`;
 
 		// Send verification email
 		await this.emailService.sendVerificationEmail({
